@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Asesoría para Certificación OEA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .flowchart-step {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .flowchart-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .arrow {
+            font-size: 2rem;
+            line-height: 1;
+            color: #4A90E2;
+        }
+        .stat-card {
+            border-left: 4px solid #4A90E2;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- PALETA DE COLORES: Brilliant Blues -->
+    <!-- #003F5C, #374C80, #7A5195, #BC5090, #EF5675, #FF764A, #FFA600 -->
+    <!-- CONFIRMACIÓN: NO se utilizó Mermaid JS ni SVG en este documento. -->
+    
+    <!-- PLAN NARRATIVO:
+    1.  Introducción (Hook): ¿Qué es OEA? Un título potente y una definición clara.
+    2.  El Valor (Why): Visualizar los beneficios tangibles. Usar un gráfico de barras para mostrar el impacto y tarjetas para destacar beneficios.
+    3.  El Proceso (How): Mostrar nuestro servicio como un camino claro de 5 pasos. Usar un diagrama de flujo con HTML/CSS.
+    4.  Factores Clave (Success): Ilustrar los elementos críticos para el éxito con un gráfico de dona.
+    5.  Llamada a la Acción (CTA): Un cierre claro con los próximos pasos.
+    -->
+
+    <!-- SELECCIÓN DE VISUALIZACIONES:
+    -   Beneficios OEA (Reducción de Inspecciones): 
+        -   Objetivo: Comparar.
+        -   Visualización: Gráfico de Barras (Bar Chart).
+        -   Justificación: Ideal para comparar dos estados (Sin OEA vs. Con OEA) de forma clara. 
+        -   Librería/Método: Chart.js (Canvas). NO SVG.
+    -   Proceso de Asesoría:
+        -   Objetivo: Organizar (Mostrar proceso).
+        -   Visualización: Diagrama de Flujo (Flow Chart).
+        -   Justificación: Muestra una secuencia de pasos de manera lógica y fácil de seguir.
+        -   Librería/Método: HTML/CSS con Tailwind. NO SVG.
+    -   Claves para el Éxito:
+        -   Objetivo: Comparar (Mostrar composición).
+        -   Visualización: Gráfico de Dona (Doughnut Chart).
+        -   Justificación: Muestra la importancia relativa de cada factor para el éxito del proyecto.
+        -   Librería/Método: Chart.js (Canvas). NO SVG.
+    -->
+
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+
+        <header class="text-center mb-12 md:mb-16">
+            <h1 class="text-4xl md:text-5xl font-black text-[#003F5C] mb-4">Optimice su Comercio Exterior con la Certificación OEA</h1>
+            <p class="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Convierta a su empresa en un socio confiable para la Aduana y agilice su cadena de suministro global.</p>
+        </header>
+
+        <main>
+            <section id="que-es-oea" class="mb-16">
+                <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+                    <h2 class="text-3xl font-bold text-[#003F5C] mb-4 text-center">¿Qué es el Operador Económico Autorizado (OEA)?</h2>
+                    <p class="text-center text-gray-700 mb-6">El OEA es un programa global, voluntario y gratuito de la Organización Mundial de Aduanas (OMA). Su objetivo es fortalecer la seguridad de la cadena de suministro internacional y, a la vez, facilitar el comercio legítimo. Al certificarse, la Aduana reconoce a su empresa como un socio estratégico, seguro y de bajo riesgo.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <span class="text-4xl font-bold text-[#4A90E2]">✔</span>
+                            <h3 class="font-bold mt-2 text-[#003F5C]">Voluntario</h3>
+                            <p class="text-sm text-gray-600">La adhesión es una decisión estratégica.</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <span class="text-4xl font-bold text-[#4A90E2]">✔</span>
+                            <h3 class="font-bold mt-2 text-[#003F5C]">Gratuito</h3>
+                            <p class="text-sm text-gray-600">La certificación no tiene costo de emisión.</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <span class="text-4xl font-bold text-[#4A90E2]">✔</span>
+                            <h3 class="font-bold mt-2 text-[#003F5C]">Global</h3>
+                            <p class="text-sm text-gray-600">Reconocido internacionalmente.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="beneficios" class="mb-16">
+                <h2 class="text-3xl font-bold text-[#003F5C] mb-8 text-center">La Ventaja Competitiva de ser OEA</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div class="bg-white rounded-lg shadow-lg p-6 md:p-8">
+                         <h3 class="text-xl font-bold text-center text-[#374C80] mb-4">Reducción Significativa de Inspecciones</h3>
+                        <p class="text-center text-gray-600 mb-6">Uno de los mayores beneficios es la disminución drástica de controles físicos y documentales, lo que se traduce en menores costos y tiempos de entrega más rápidos.</p>
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="beneficiosChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-lg shadow-md p-4 flex items-center stat-card">
+                            <span class="text-3xl mr-4">✈️</span>
+                            <div>
+                                <h4 class="font-bold text-[#374C80]">Agilidad en Aduana</h4>
+                                <p class="text-gray-600">Despacho aduanero más rápido y con prioridad en caso de controles.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md p-4 flex items-center stat-card">
+                             <span class="text-3xl mr-4">🌍</span>
+                             <div>
+                                <h4 class="font-bold text-[#374C80]">Reconocimiento Internacional</h4>
+                                <p class="text-gray-600">Facilita el acceso a nuevos mercados gracias a los Acuerdos de Reconocimiento Mutuo.</p>
+                             </div>
+                        </div>
+                        <div class="bg-white rounded-lg shadow-md p-4 flex items-center stat-card">
+                             <span class="text-3xl mr-4">🛡️</span>
+                             <div>
+                                <h4 class="font-bold text-[#374C80]">Cadena de Suministro Segura</h4>
+                                <p class="text-gray-600">Minimiza riesgos y fortalece la confianza con sus socios comerciales.</p>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="proceso" class="mb-16">
+                <h2 class="text-3xl font-bold text-[#003F5C] mb-8 text-center">Nuestro Proceso de Asesoría: Su Camino a la Certificación</h2>
+                <p class="text-lg text-gray-600 text-center max-w-3xl mx-auto mb-10">Lo acompañamos en cada etapa con un plan de trabajo claro y personalizado para garantizar el éxito.</p>
+                <div class="flex flex-col md:flex-row justify-center items-center md:items-start space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="text-center flowchart-step bg-white p-4 rounded-lg shadow-md w-60">
+                        <div class="text-3xl font-black text-white bg-[#4A90E2] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">1</div>
+                        <h4 class="font-bold text-[#003F5C]">Diagnóstico</h4>
+                        <p class="text-sm text-gray-600">Evaluamos su nivel de cumplimiento actual.</p>
+                    </div>
+                    <div class="arrow hidden md:block mt-12">→</div>
+                    <div class="text-center flowchart-step bg-white p-4 rounded-lg shadow-md w-60">
+                        <div class="text-3xl font-black text-white bg-[#7A5195] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">2</div>
+                        <h4 class="font-bold text-[#003F5C]">Diseño e Implementación</h4>
+                        <p class="text-sm text-gray-600">Creamos y aplicamos su plan de seguridad.</p>
+                    </div>
+                    <div class="arrow hidden md:block mt-12">→</div>
+                    <div class="text-center flowchart-step bg-white p-4 rounded-lg shadow-md w-60">
+                        <div class="text-3xl font-black text-white bg-[#BC5090] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">3</div>
+                        <h4 class="font-bold text-[#003F5C]">Documentación</h4>
+                        <p class="text-sm text-gray-600">Preparamos toda la carpeta para la Aduana.</p>
+                    </div>
+                    <div class="arrow hidden md:block mt-12">→</div>
+                    <div class="text-center flowchart-step bg-white p-4 rounded-lg shadow-md w-60">
+                        <div class="text-3xl font-black text-white bg-[#EF5675] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">4</div>
+                        <h4 class="font-bold text-[#003F5C]">Auditoría</h4>
+                        <p class="text-sm text-gray-600">Lo acompañamos durante la validación oficial.</p>
+                    </div>
+                     <div class="arrow hidden md:block mt-12">→</div>
+                    <div class="text-center flowchart-step bg-white p-4 rounded-lg shadow-md w-60">
+                        <div class="text-3xl font-black text-white bg-[#FF764A] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">5</div>
+                        <h4 class="font-bold text-[#003F5C]">Mantenimiento</h4>
+                        <p class="text-sm text-gray-600">Aseguramos el cumplimiento continuo.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="claves-exito" class="mb-16">
+                <h2 class="text-3xl font-bold text-[#003F5C] mb-8 text-center">Claves para el Éxito del Programa</h2>
+                 <div class="bg-white rounded-lg shadow-lg p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+                    <div class="md:w-1/2">
+                        <h3 class="text-xl font-bold text-center text-[#374C80] mb-4">Factores Críticos de Implementación</h3>
+                        <p class="text-gray-600 text-center md:text-left">El éxito de la certificación OEA no es solo técnico, depende de un fuerte compromiso organizacional. Nuestra asesoría se enfoca en fortalecer estos pilares dentro de su empresa para asegurar un proceso fluido y resultados duraderos.</p>
+                    </div>
+                    <div class="md:w-1/2 chart-container h-64 md:h-80">
+                        <canvas id="clavesExitoChart"></canvas>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="cta" class="text-center bg-[#003F5C] text-white rounded-lg shadow-lg p-8 md:p-12">
+                <h2 class="text-3xl font-bold mb-4">¿Listo para dar el siguiente paso?</h2>
+                <p class="text-lg text-blue-100 mb-6 max-w-2xl mx-auto">Agendemos una reunión para realizar un diagnóstico sin costo y mostrarle en detalle cómo la certificación OEA puede potenciar su negocio de exportación.</p>
+                <a href="mailto:mario.basaez@asli.cl?subject=Interesado en Asesoría OEA" class="bg-[#FFA600] text-[#003F5C] font-bold py-3 px-8 rounded-lg text-lg hover:bg-yellow-400 transition-colors">Contactar a un Asesor</a>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>ASESORÍAS Y SERVICIOS LOGÍSTICOS INTEGRALES &copy; 2025</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            } else {
+                return label;
+            }
+        };
+    
+        const wrapLabel = (label) => {
+            const maxLength = 16;
+            if (label.length <= maxLength) {
+                return label;
+            }
+            const words = label.split(' ');
+            let currentLine = '';
+            const lines = [];
+            words.forEach(word => {
+                if ((currentLine + ' ' + word).trim().length > maxLength) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine = (currentLine + ' ' + word).trim();
+                }
+            });
+            if (currentLine) {
+                lines.push(currentLine.trim());
+            }
+            return lines;
+        };
+        
+        const benefitsData = {
+            labels: ['Empresa Sin OEA', 'Empresa Con OEA'],
+            datasets: [{
+                label: 'Probabilidad de Inspección (%)',
+                data: [100, 25],
+                backgroundColor: [
+                    'rgba(239, 86, 117, 0.6)',
+                    'rgba(74, 144, 226, 0.6)'
+                ],
+                borderColor: [
+                    'rgba(239, 86, 117, 1)',
+                    'rgba(74, 144, 226, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const benefitsChartCtx = document.getElementById('beneficiosChart').getContext('2d');
+        new Chart(benefitsChartCtx, {
+            type: 'bar',
+            data: benefitsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 110,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%'
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                           title: tooltipTitleCallback
+                        }
+                    }
+                }
+            }
+        });
+
+        const clavesExitoLabels = [
+            'Involucramiento de la Gerencia', 
+            'Conciencia de Puestos Claves', 
+            'Comunicación Efectiva', 
+            'Disponibilidad de Recursos', 
+            'Contraparte Definida'
+        ];
+        
+        const clavesExitoData = {
+            labels: clavesExitoLabels.map(wrapLabel),
+            datasets: [{
+                label: 'Importancia',
+                data: [30, 25, 15, 20, 10],
+                backgroundColor: [
+                    '#374C80',
+                    '#7A5195',
+                    '#BC5090',
+                    '#EF5675',
+                    '#FF764A'
+                ],
+                hoverOffset: 4
+            }]
+        };
+
+        const clavesExitoChartCtx = document.getElementById('clavesExitoChart').getContext('2d');
+        new Chart(clavesExitoChartCtx, {
+            type: 'doughnut',
+            data: clavesExitoData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                           boxWidth: 20
+                        }
+                    }
+                    ,
+                    tooltip: {
+                        callbacks: {
+                           title: tooltipTitleCallback
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>
