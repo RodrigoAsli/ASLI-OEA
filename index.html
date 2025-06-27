@@ -359,33 +359,26 @@
 
         // === ¡¡¡MUY IMPORTANTE!!! ===
         // Debes REEMPLAZAR los valores de este objeto 'firebaseConfig'
-        // con la CONFIGURACIÓN REAL de tu proyecto Firebase.
-        // PASOS:
+        // con la CONFIGURACIÓN REAL y COMPLETA de tu proyecto Firebase.
+        // PASOS CLAVE:
         // 1. Ve a la Consola de Firebase: https://console.firebase.google.com/
-        // 2. Selecciona tu proyecto.
-        // 3. Haz clic en el icono de "Configuración del proyecto" (el engranaje)
+        // 2. Selecciona tu proyecto (ej. "miwebcontadorglobal").
+        // 3. Haz clic en el icono de "Configuración del proyecto" (el engranaje ⚙️)
         //    junto a "Project overview" en la parte superior izquierda.
-        // 4. Baja hasta la sección "Tus aplicaciones" y selecciona tu aplicación web.
-        // 5. Copia el objeto 'firebaseConfig' que se muestra allí (se verá como el de abajo,
-        //    pero con valores reales en lugar de "TU_API_KEY", etc.)
+        // 4. Baja hasta la sección "Tus aplicaciones" y selecciona tu aplicación web (el icono </>).
+        // 5. Copia el objeto 'firebaseConfig' que se muestra allí. Asegúrate de copiarlo
+        //    EXACTAMENTE como aparece, incluyendo TODOS los campos (apiKey, authDomain, projectId,
+        //    storageBucket, messagingSenderId, appId).
         // 6. PEGA ese objeto COMPLETO aquí, reemplazando el placeholder actual.
-        //    EJEMPLO:
-        //    const firebaseConfig = {
-        //         apiKey: "AIzaSyD-YOUR-REAL-API-KEY",
-        //         authDomain: "your-project.firebaseapp.com",
-        //         projectId: "your-project-id",
-        //         storageBucket: "your-project.appspot.com",
-        //         messagingSenderId: "1234567890",
-        //         appId: "1:1234567890:web:abcdef123456"
-        //    };
+        //    No dejes ningún campo "TU_..." ni lo omitas.
         const firebaseConfig = {
-  apiKey: "AIzaSyDcqnSuSwl8YFi7SQ5PUO6KtXRzdy05KWw",
-  authDomain: "miwebcontadorglobal.firebaseapp.com",
-  projectId: "miwebcontadorglobal",
-  storageBucket: "miwebcontadorglobal.firebasestorage.app",
-  messagingSenderId: "517863533597",
-  appId: "1:517863533597:web:5dc4ee791d86f61487aaf4"
-};
+            apiKey: "AIzaSyDcqnSuSwl8YFi7SQ5PUO6KtXRzdy05KWw",
+            authDomain: "miwebcontadorglobal.firebaseapp.com",
+            projectId: "miwebcontadorglobal",
+            storageBucket: "miwebcontadorglobal.firebasestorage.app",
+            messagingSenderId: "517863533597",
+            appId: "1:517863533597:web:5dc4ee791d86f61487aaf4"
+        };
         // ============================================================================================
 
 
@@ -395,13 +388,16 @@
          */
         async function initializeFirebaseAndCounter() {
             try {
-                // El appId se obtiene del projectId de la configuración de Firebase
-                // Es importante usar el projectId para la ruta de Firestore de GitHub Pages
+                // Asigna el appId para la ruta de Firestore (usamos projectId para esto)
                 appId = firebaseConfig.projectId; 
                 
-                // Si la configuración de Firebase aún contiene placeholders o está incompleta
-                if (firebaseConfig.apiKey === "TU_API_KEY" || firebaseConfig.projectId === "TU_PROJECT_ID" || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
-                    console.error("Firebase config is incomplete or invalid. Please replace the placeholder values in 'firebaseConfig' with your actual Firebase project details from the Firebase Console.");
+                // Loguea la configuración para que el usuario pueda verificarla en la consola del navegador
+                console.log("Firebase Configuración usada:", firebaseConfig);
+
+                // Verifica que los campos críticos de la configuración no sean los placeholders
+                if (firebaseConfig.apiKey === "TU_API_KEY" || firebaseConfig.projectId === "TU_PROJECT_ID" || 
+                    !firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
+                    console.error("Firebase config is incomplete, invalid, or still contains placeholders. Please replace the placeholder values in 'firebaseConfig' with your actual Firebase project details from the Firebase Console.");
                     viewCounterElement.textContent = 'Error: Configuración de Firebase vacía o inválida. ¡Asegúrate de reemplazar los placeholders!';
                     return; // Detener la ejecución si la configuración es inválida
                 }
@@ -413,7 +409,7 @@
                 // Obtiene la instancia de Firebase Authentication
                 auth = getAuth(app);
 
-                console.log("Firebase initialized successfully."); // Log de éxito en la consola del navegador
+                console.log("Firebase inicializado exitosamente."); // Log de éxito en la consola del navegador
 
                 // Una vez inicializado Firebase, procede a actualizar el contador de vistas
                 await updateViewCounter();
@@ -430,8 +426,7 @@
          * Utiliza Firestore para almacenar el conteo de forma persistente.
          */
         async function updateViewCounter() {
-            // Asegurarse de que las instancias de Firebase estén inicializadas
-            // Y que appId también esté disponible y no sea el valor por defecto
+            // Asegurarse de que las instancias de Firebase estén inicializadas y appId sea válido
             if (!db || !auth || typeof appId === 'undefined' || appId === 'default-app-id' || appId === 'TU_PROJECT_ID') {
                 console.error("Firebase database, auth, or appId not initialized correctly or missing before calling updateViewCounter.");
                 viewCounterElement.textContent = 'Error: Dependencias de Firebase no inicializadas correctamente o ID de App no definido.';
@@ -439,14 +434,14 @@
             }
 
             // Ruta al documento en Firestore donde se almacenará el contador de vistas.
-            // Esta ruta utiliza el 'projectId' de tu Firebase Config como el 'appId' para GitHub Pages.
+            // Esta ruta utiliza el 'projectId' de tu Firebase Config como el 'appId' para el path en Firestore.
             const collectionPath = `artifacts/${appId}/public/data/views`;
             const docRef = doc(db, collectionPath, 'pageViews'); // Documento específico para el contador de la página
 
             try {
                 // Para GitHub Pages, nos autenticamos anónimamente
                 await signInAnonymously(auth);
-                console.log("Signed in anonymously for view counter.");
+                console.log("Sesión anónima iniciada para el contador de vistas.");
 
                 // Ejecuta una transacción de Firestore para asegurar que el incremento del contador sea atómico.
                 await runTransaction(db, async (transaction) => {
@@ -468,6 +463,8 @@
                 // Proporciona mensajes de error más específicos al usuario en la interfaz
                 if (e.code === 'auth/api-key-not-valid') {
                      viewCounterElement.textContent = 'Error: Clave API de Firebase inválida. Asegúrate de haberla copiado correctamente.';
+                } else if (e.code === 'auth/configuration-not-found') {
+                     viewCounterElement.textContent = 'Error: Configuración de autenticación de Firebase no encontrada. Verifica tu `appId` y que "Authentication" esté habilitado.';
                 } else if (e.code === 'permission-denied') {
                     viewCounterElement.textContent = 'Error: Permisos insuficientes en Firestore. Revisa tus reglas de seguridad en Firebase.';
                 } else if (e.code === 'unavailable') {
