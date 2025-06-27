@@ -312,7 +312,7 @@
                     '#7A5195',
                     '#BC5090',
                     '#EF5675',
-                    '#FF764A'
+                    '#FF764A',
                 ],
                 hoverOffset: 4
             }]
@@ -393,6 +393,7 @@
                 
                 // Loguea la configuración para que el usuario pueda verificarla en la consola del navegador
                 console.log("Firebase Configuración usada:", firebaseConfig);
+                console.log("App ID derivado para Firestore path:", appId); // Nuevo log para appId
 
                 // Verifica que los campos críticos de la configuración no sean los placeholders
                 if (firebaseConfig.apiKey === "TU_API_KEY" || firebaseConfig.projectId === "TU_PROJECT_ID" || 
