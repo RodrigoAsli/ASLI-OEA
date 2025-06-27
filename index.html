@@ -351,50 +351,88 @@
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Variables globales proporcionadas por el entorno Canvas (NO las modifiques)
-        // __app_id: Identificador único de la aplicación en el entorno Canvas.
-        // __firebase_config: Configuración de Firebase para conectar tu app.
-        // __initial_auth_token: Token de autenticación inicial para Firebase.
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        
-        // Inicializa la aplicación de Firebase
-        const app = initializeApp(firebaseConfig);
-        // Obtiene la instancia de Firestore Database
-        const db = getFirestore(app);
-        // Obtiene la instancia de Firebase Authentication
-        const auth = getAuth(app);
+        const viewCounterElement = document.getElementById('view-counter');
+        let app;
+        let db;
+        let auth;
+        let appId; // Ahora appId está declarado globalmente
+
+        /**
+         * Inicializa Firebase y luego llama a la función para actualizar el contador.
+         * Esta función maneja la configuración y posibles errores iniciales de Firebase.
+         */
+        async function initializeFirebaseAndCounter() {
+            try {
+                // Asigna el valor a la variable global appId
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const firebaseConfigString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+                const firebaseConfig = JSON.parse(firebaseConfigString);
+
+                // Si la configuración de Firebase está vacía, no podemos inicializar
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is empty. Cannot initialize Firebase. Make sure Firebase is set up correctly in the environment.");
+                    viewCounterElement.textContent = 'Error: Configuración de Firebase vacía o inválida.';
+                    return; // Detener la ejecución si la configuración es inválida
+                }
+
+                // Inicializa la aplicación de Firebase
+                app = initializeApp(firebaseConfig);
+                // Obtiene la instancia de Firestore Database
+                db = getFirestore(app);
+                // Obtiene la instancia de Firebase Authentication
+                auth = getAuth(app);
+
+                console.log("Firebase initialized successfully."); // Log de éxito en la consola del navegador
+
+                // Una vez inicializado Firebase, procede a actualizar el contador de vistas
+                await updateViewCounter();
+
+            } catch (initError) {
+                // Captura cualquier error durante la inicialización de Firebase
+                console.error("Error al inicializar Firebase: ", initError);
+                viewCounterElement.textContent = `Error de inicio: ${initError.message || 'Error desconocido al inicializar Firebase'}.`;
+            }
+        }
 
         /**
          * Función asíncrona para actualizar y mostrar el contador de vistas global.
          * Utiliza Firestore para almacenar el conteo de forma persistente.
          */
         async function updateViewCounter() {
-            const viewCounterElement = document.getElementById('view-counter');
+            // Asegurarse de que las instancias de Firebase estén inicializadas
+            // Y que appId también esté disponible
+            if (!db || !auth || typeof appId === 'undefined') {
+                console.error("Firebase database, auth, or appId not initialized correctly before calling updateViewCounter.");
+                viewCounterElement.textContent = 'Error: Dependencias de Firebase no inicializadas correctamente.';
+                return;
+            }
+
             // Ruta al documento en Firestore donde se almacenará el contador de vistas.
-            // Es una ruta "pública" dentro de tu espacio de aplicación en Firestore.
+            // Esta ruta utiliza el 'appId' proporcionado por el entorno del Canvas.
             const collectionPath = `artifacts/${appId}/public/data/views`;
             const docRef = doc(db, collectionPath, 'pageViews'); // Documento específico para el contador de la página
 
             try {
-                // Intenta autenticar al usuario. Primero con el token inicial si existe,
-                // si no, o si falla, intenta de forma anónima.
                 let userSignedIn = false;
+                // Intenta autenticar al usuario. Primero con el token inicial si existe y no está vacío.
+                // Si falla o no hay token, intenta de forma anónima.
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token !== null && __initial_auth_token !== '') {
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
                         userSignedIn = true;
                     } catch (tokenError) {
+                        // Si el token personalizado falla, registra una advertencia y recurre al inicio de sesión anónimo
                         console.warn("Fallo en el inicio de sesión con token personalizado, intentando inicio de sesión anónimo:", tokenError);
                         await signInAnonymously(auth);
-                        userSignedIn = true;
+                        userSignedIn = true; // El usuario ha iniciado sesión (anónimamente)
                     }
                 } else {
+                    // Si no hay token personalizado o está vacío, inicia sesión anónimamente directamente
                     await signInAnonymously(auth);
                     userSignedIn = true;
                 }
 
-                // Si por alguna razón no se pudo iniciar sesión, se informa y se detiene.
+                // Si por alguna razón no se pudo iniciar sesión con ningún método, se informa y se detiene.
                 if (!userSignedIn) {
                     console.error("No se pudo iniciar sesión con ningún usuario en Firebase.");
                     viewCounterElement.textContent = 'Error de autenticación. No se pudo iniciar sesión en el contador.';
@@ -402,11 +440,11 @@
                 }
 
                 // Ejecuta una transacción de Firestore para asegurar que el incremento del contador sea atómico.
-                // Esto es crucial para evitar condiciones de carrera cuando múltiples usuarios visitan la página.
+                // Esto es crucial para evitar condiciones de carrera cuando múltiples usuarios visitan la página al mismo tiempo.
                 await runTransaction(db, async (transaction) => {
-                    const sfDoc = await transaction.get(docRef); // Obtiene el estado actual del documento
+                    const sfDoc = await transaction.get(docRef); // Obtiene el estado actual del documento del contador
                     if (!sfDoc.exists()) {
-                        // Si el documento del contador no existe, lo crea con un conteo inicial de 1
+                        // Si el documento del contador no existe en Firestore, lo crea con un conteo de 1
                         transaction.set(docRef, { count: 1 });
                         viewCounterElement.textContent = 'Visitas: 1';
                     } else {
@@ -417,21 +455,21 @@
                     }
                 });
             } catch (e) {
-                // Manejo de errores durante la operación de Firebase
+                // Manejo de errores detallado durante la operación de Firestore
                 console.error("Error al actualizar el contador de vistas con Firebase: ", e);
-                // Proporcionar mensajes de error más específicos al usuario
+                // Proporciona mensajes de error más específicos al usuario en la interfaz
                 if (e.code === 'permission-denied') {
-                    viewCounterElement.textContent = 'Error: Permisos insuficientes en Firestore. Revisa tus reglas.';
+                    viewCounterElement.textContent = 'Error: Permisos insuficientes en Firestore. Revisa tus reglas de seguridad en Firebase.';
                 } else if (e.code === 'unavailable') {
-                    viewCounterElement.textContent = 'Error: Conexión con Firestore no disponible. Revisa tu red.';
+                    viewCounterElement.textContent = 'Error: Conexión con Firestore no disponible. Revisa tu conexión a internet o el estado del servicio de Firebase.';
                 } else {
-                    viewCounterElement.textContent = `Error del contador: ${e.message || 'Error desconocido'}`;
+                    viewCounterElement.textContent = `Error del contador: ${e.message || 'Error desconocido al actualizar visitas'}`;
                 }
             }
         }
 
-        // Llama a la función del contador de vistas cuando la ventana ha cargado completamente
-        window.onload = updateViewCounter;
+        // Llama a la función de inicialización de Firebase y el contador cuando la ventana ha cargado completamente
+        window.onload = initializeFirebaseAndCounter;
     </script>
 
 </body>
