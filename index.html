@@ -358,7 +358,7 @@
             try {
                 let userSignedIn = false;
                 // Intentar autenticar con el token personalizado si está disponible
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token !== null) {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token !== null && __initial_auth_token !== '') {
                     try {
                         await signInWithCustomToken(auth, __initial_auth_token);
                         userSignedIn = true;
@@ -369,7 +369,7 @@
                         userSignedIn = true; // El usuario ha iniciado sesión, aunque sea de forma anónima
                     }
                 } else {
-                    // Si no hay token personalizado, iniciar sesión de forma anónima
+                    // Si no hay token personalizado o está vacío, iniciar sesión de forma anónima
                     await signInAnonymously(auth);
                     userSignedIn = true;
                 }
@@ -377,7 +377,7 @@
                 // Si no se pudo iniciar sesión con ningún método, salir de la función
                 if (!userSignedIn) {
                     console.error("No se pudo iniciar sesión con ningún usuario.");
-                    viewCounterElement.textContent = 'Error de autenticación.';
+                    viewCounterElement.textContent = 'Error de autenticación. No se pudo iniciar sesión.';
                     return; 
                 }
 
@@ -396,7 +396,14 @@
                 });
             } catch (e) {
                 console.error("Error al actualizar el contador de vistas: ", e);
-                viewCounterElement.textContent = 'Error al cargar las visitas.';
+                // Proporcionar un mensaje de error más detallado en la interfaz de usuario
+                if (e.code === 'permission-denied') {
+                    viewCounterElement.textContent = 'Error de permisos: Verifique las reglas de seguridad de Firestore.';
+                } else if (e.code === 'unavailable') {
+                    viewCounterElement.textContent = 'Error de conexión: El servicio de base de datos no está disponible.';
+                } else {
+                    viewCounterElement.textContent = `Error: ${e.message || 'Error desconocido al cargar las visitas.'}`;
+                }
             }
         }
 
