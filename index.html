@@ -203,11 +203,17 @@
 
         <footer class="text-center mt-12 text-gray-500 text-sm">
             <p>ASESORÍAS Y SERVICIOS LOGÍSTICOS INTEGRALES &copy; 2025</p>
+            <div id="view-counter" class="mt-2 text-gray-600 text-sm">Cargando contador de vistas...</div>
         </footer>
 
     </div>
 
-    <script>
+    <script type="module">
+        // Importa las funciones necesarias de Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
         const tooltipTitleCallback = (tooltipItems) => {
             const item = tooltipItems[0];
             let label = item.chart.data.labels[item.dataIndex];
@@ -335,6 +341,67 @@
                 }
             }
         });
+
+        // Configuración e inicialización de Firebase
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Función para actualizar y mostrar el contador de vistas
+        async function updateViewCounter() {
+            const viewCounterElement = document.getElementById('view-counter');
+            const collectionPath = `artifacts/${appId}/public/data/views`; // Ruta para datos públicos
+            const docRef = doc(db, collectionPath, 'pageViews'); // Documento específico para el contador de la página
+
+            try {
+                let userSignedIn = false;
+                // Intentar autenticar con el token personalizado si está disponible
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token !== null) {
+                    try {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                        userSignedIn = true;
+                    } catch (tokenError) {
+                        console.warn("Fallo en el inicio de sesión con token personalizado, intentando inicio de sesión anónimo:", tokenError);
+                        // Si el token personalizado falla, recurrir al inicio de sesión anónimo
+                        await signInAnonymously(auth);
+                        userSignedIn = true; // El usuario ha iniciado sesión, aunque sea de forma anónima
+                    }
+                } else {
+                    // Si no hay token personalizado, iniciar sesión de forma anónima
+                    await signInAnonymously(auth);
+                    userSignedIn = true;
+                }
+
+                // Si no se pudo iniciar sesión con ningún método, salir de la función
+                if (!userSignedIn) {
+                    console.error("No se pudo iniciar sesión con ningún usuario.");
+                    viewCounterElement.textContent = 'Error de autenticación.';
+                    return; 
+                }
+
+                await runTransaction(db, async (transaction) => {
+                    const sfDoc = await transaction.get(docRef);
+                    if (!sfDoc.exists()) {
+                        // Si el documento no existe, crearlo con un conteo de 1
+                        transaction.set(docRef, { count: 1 });
+                        viewCounterElement.textContent = 'Visitas: 1';
+                    } else {
+                        // Si el documento existe, incrementar el conteo
+                        const newCount = sfDoc.data().count + 1;
+                        transaction.update(docRef, { count: newCount });
+                        viewCounterElement.textContent = `Visitas: ${newCount}`;
+                    }
+                });
+            } catch (e) {
+                console.error("Error al actualizar el contador de vistas: ", e);
+                viewCounterElement.textContent = 'Error al cargar las visitas.';
+            }
+        }
+
+        // Ejecutar la función del contador de vistas cuando la ventana se carga
+        window.onload = updateViewCounter;
     </script>
 
 </body>
